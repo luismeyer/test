@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/luismeyer/test/compare/v1.2.0...v1.3.0) (2023-01-24)
+
+
+### Features
+
+* bar ([bc1bb7d](https://github.com/luismeyer/test/commit/bc1bb7dd5a6aec33a06e34adeb872b1d56fdd679))
+
 ## [1.2.0](https://github.com/luismeyer/test/compare/v1.1.0...v1.2.0) (2023-01-24)
 
 
