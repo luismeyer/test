@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     outputs:
-      releaseCreated: ${{ steps.release-created.outputs.releases_created }}
+      releaseCreated: ${{ steps.release-please.outputs.releases_created }}
       tagName: ${{ steps.release-please.outputs.tag_name }}
 
     steps:
@@ -101,6 +101,11 @@ jobs:
           cache: "npm"
           registry-url: https://npm.pkg.github.com
           scope: "@volkswagen-onehub"
+
+      - name: Release
+        env:
+          RELEASE: ${{ needs.release-please.outputs.releaseCreated }}
+        run: echo ${{ env.RELEASE }}
 
   release-output:
     runs-on: ubuntu-latest
