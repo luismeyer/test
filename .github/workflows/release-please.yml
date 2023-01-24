@@ -31,6 +31,14 @@ jobs:
           script: |
             return Boolean(${{ steps.release.outputs.releases_created }})
 
+      - name: Info
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            console.log(${{ steps.release-please.outputs.pr }})
+            console.log(${{ steps.release-please.outputs.pr.headBranchName }})
+
   deploy:
     runs-on: ubuntu-latest
     permissions: write-all
