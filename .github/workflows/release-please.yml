@@ -36,7 +36,8 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            console.log(${{ steps.release-please.outputs }})
+            console.log(${{ steps.release-please.outputs }}())
+            console.log(${{ steps.release-please.outputs.pr }})
             console.log(${{ steps.release-please.outputs.pr.headBranchName }})
 
   deploy:
