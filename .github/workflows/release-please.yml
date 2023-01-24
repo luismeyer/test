@@ -88,7 +88,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions: write-all
-    needs: setup
+    needs: [release-please, setup]
     env:
       CI: true
 
@@ -112,7 +112,7 @@ jobs:
   release-output:
     runs-on: ubuntu-latest
     permissions: write-all
-    needs: deploy
+    needs: [release-please, setup, deploy]
     if: ${{ needs.release-please.outputs.releaseCreated }}
 
     steps:
@@ -145,7 +145,7 @@ jobs:
   prerelease-output:
     runs-on: ubuntu-latest
     permissions: write-all
-    needs: deploy
+    needs: [release-please, setup, deploy]
     if: ${{ !needs.release-please.outputs.releaseCreated }}
 
     steps:
