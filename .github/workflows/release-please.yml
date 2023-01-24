@@ -57,5 +57,7 @@ jobs:
 
             const { data: { id, body } } = await github.rest.repos.getReleaseByTag({owner: repository.owner.login, repo: repository.name, tag: ref});
 
+            console.log({ id,body })
+
             const newBody = `${ newStackLink }\n---\n${ body }`;
             await github.rest.repos.updateRelease({owner: repository.owner.login, repo: repository.name, release_id: id, body: newBody});
