@@ -21,13 +21,12 @@ jobs:
           package-name: TEST
           pull-request-title-pattern: "v${version}"
 
-      - name: Release Created
+      - name: Release Created Status
         id: release-created
         uses: actions/github-script@v6
         with:
           github-token: ${{ github.token }}
-          script: |
-            return Boolean(${{ steps.release.outputs.releases_created }})
+          script: return Boolean(${{ steps.release.outputs.releases_created }})
 
   setup:
     runs-on: ubuntu-latest
@@ -124,7 +123,6 @@ jobs:
 
       - name: Update Release description
         uses: actions/github-script@v6
-        if: ${{ needs.release-please.outputs.releaseCreated }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -164,7 +162,6 @@ jobs:
             const { repository } = context.payload;
 
             const newStackLink = '${{ needs.setup.outputs.stackLink }}';
-
             const pullNumber = ${{ needs.setup.outputs.releasePRNumber }}
 
             await github.rest.issues.createComment({ 
