@@ -120,7 +120,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { pull_request, repository } = context.payload;
-            const newStackLink = '${{ needs.setup.outputs.stackLink }}'
+            const newStackLink = ${{ needs.setup.outputs.stackLink }}
 
             const { data: { id, body } } = await github.rest.repos.getReleaseByTag({ 
               owner: repository.owner.login, 
@@ -154,7 +154,7 @@ jobs:
           script: |
             const { repository } = context.payload;
 
-            const newStackLink = '${{ needs.setup.outputs.stackLink }}';
+            const newStackLink = ${{ needs.setup.outputs.stackLink }};
             const pullNumber = ${{ needs.setup.outputs.releasePRNumber }};
 
             await github.rest.issues.createComment({ 
@@ -180,16 +180,16 @@ jobs:
               return
             }
 
-            const prefix = 'Current Prerelease: ';
+            const prefix = '### Current Prerelease: ';
 
             if (body.includes(prefix)) {
               console.info('Cutting first line of body...');
 
-              const firstLineBreakIndex = body.indexOf('\n');
-              body = body.substring(body.indexOf('\n', firstLineBreakIndex + 1) + 1);
+              const prefixIndex = body.indexOf(prefix);
+              body = body.substring(prefixIndex, body.length);
             }
 
-            body = `${ prefix }${ newStackLink }\n---\n${ body }`;
+            body = `${ body }\n---\n${ prefix }${ newStackLink }`;
 
             await github.rest.pulls.update({ 
               owner: repository.owner.login, 
