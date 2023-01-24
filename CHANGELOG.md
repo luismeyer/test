@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/luismeyer/test/compare/v1.1.0...v1.2.0) (2023-01-24)
+
+
+### Features
+
+* foo ([7b968e8](https://github.com/luismeyer/test/commit/7b968e81238eee351d0e603dfadf09a6e2ba1ac0))
+
 ## [1.1.0](https://github.com/luismeyer/test/compare/v1.0.0...v1.1.0) (2023-01-24)
 
 
