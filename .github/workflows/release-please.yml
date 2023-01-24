@@ -29,7 +29,6 @@ jobs:
       ref: ${{ steps.ref.outputs.result }}
       stackLink: ${{ steps.stackLink.outputs.result }}
       releasePRNumber: ${{ steps.envVars.outputs.releasePRNumber }}
-      releasePRHeadSha: ${{ steps.envVars.outputs.releasePRHeadSha }}
     env:
       CI: true
 
@@ -57,7 +56,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "releasePRNumber=$(gh pr view --json number -q .number || echo "PR number not found")" >> $GITHUB_ENV
+          echo "releasePRNumber=$(gh pr view --json number -q .number || echo "PR number not found")" >> $GITHUB_OUTPUT
           echo "releasePRHeadSha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Create Stacklink
@@ -156,7 +155,7 @@ jobs:
             const { repository } = context.payload;
 
             const newStackLink = '${{ needs.setup.outputs.stackLink }}';
-            const pullNumber = ${{ needs.setup.outputs.releasePRNumber }}
+            const pullNumber = ${{ needs.setup.outputs.releasePRNumber }};
 
             await github.rest.issues.createComment({ 
               owner: repository.owner.login, 
