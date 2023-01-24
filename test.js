@@ -4,6 +4,8 @@ const main = () => {
   console.log("LOL");
 
   console.log("BLUB");
+
+  console.log("foo");
 };
 
 main();
