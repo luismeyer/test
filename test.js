@@ -1,1 +1,5 @@
-console.log("DUMMY PROJECT");
+const main = () => {
+  console.log("DUMMY PROJECT");
+};
+
+main();
