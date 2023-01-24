@@ -22,7 +22,11 @@ jobs:
           pull-request-title-pattern: "v${version}"
 
       - name: Info
-        run: echo '${{ steps.release.outputs }}'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            console.log(JSON.stringify(${{ steps.release.outputs }}))
 
   deploy:
     runs-on: ubuntu-latest
@@ -41,7 +45,7 @@ jobs:
           github-token: ${{ github.token }}
           result-encoding: string
           script: |
-            const releaseCreated = ${{ needs.release-please.outputs.releases_created }};
+            const releaseCreated = Boolean(${{ needs.release-please.outputs.releases_created }});
             return releaseCreated ? '${{ needs.release-please.outputs.tag_name }}' : 'release-please--branches--main--components--TEST';
 
       - name: Info
