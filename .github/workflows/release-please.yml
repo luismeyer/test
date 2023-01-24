@@ -23,6 +23,7 @@ jobs:
 
   release-stack:
     runs-on: ubuntu-latest
+    permissions: write-all
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created }}
     env:
