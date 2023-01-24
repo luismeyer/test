@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0](https://github.com/luismeyer/test/compare/v1.4.0...v1.5.0) (2023-01-24)
+
+
+### Features
+
+* ci ([27a7a74](https://github.com/luismeyer/test/commit/27a7a74a3192f789c9a571d7c9dc3ff343b7a743))
+* format ([faf548a](https://github.com/luismeyer/test/commit/faf548af2f64d8dc5d79b6b4ab81b2ec2c4ad7f1))
+* stuff ([21a2d74](https://github.com/luismeyer/test/commit/21a2d7429ae563c1f698140d1d2a1b7676d1cf8a))
+* test ([8c866aa](https://github.com/luismeyer/test/commit/8c866aaf0768d60684cd10ffa1cfc3d9b26aed0b))
+
 ## [1.4.0](https://github.com/luismeyer/test/compare/v1.3.0...v1.4.0) (2023-01-24)
 
 
