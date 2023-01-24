@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/luismeyer/test/compare/v1.3.0...v1.4.0) (2023-01-24)
+
+
+### Features
+
+* release ([ec1f45f](https://github.com/luismeyer/test/commit/ec1f45f50fb126fa668e5d8147c821d63ef49c6c))
+
 ## [1.3.0](https://github.com/luismeyer/test/compare/v1.2.0...v1.3.0) (2023-01-24)
 
 
