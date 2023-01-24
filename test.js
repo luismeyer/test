@@ -10,6 +10,8 @@ const main = () => {
   console.log("bar");
 
   console.log("release please");
+
+  console.log("test");
 };
 
 main();
