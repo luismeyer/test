@@ -36,7 +36,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            console.log(${{ steps.release-please.outputs.pr }})
+            console.log(${{ steps.release-please.outputs }})
             console.log(${{ steps.release-please.outputs.pr.headBranchName }})
 
   deploy:
@@ -44,7 +44,7 @@ jobs:
     permissions: write-all
     needs: release-please
     outputs:
-      ref: ${{ steps.ref.outputs.result }}
+      ref: ${{ needs.release-please.outputs.releasePRName || needs.release-please.outputs.tagName }}
     env:
       CI: true
 
