@@ -12,6 +12,8 @@ const main = () => {
   console.log("release please");
 
   console.log("test");
+
+  console.log("test");
 };
 
 main();
