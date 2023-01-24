@@ -8,6 +8,8 @@ const main = () => {
   console.log("foo");
 
   console.log("bar");
+
+  console.log("release please");
 };
 
 main();
