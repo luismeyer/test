@@ -6,6 +6,8 @@ const main = () => {
   console.log("BLUB");
 
   console.log("foo");
+
+  console.log("bar");
 };
 
 main();
