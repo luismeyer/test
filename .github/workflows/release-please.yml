@@ -10,7 +10,9 @@ jobs:
     permissions: write-all
     outputs:
       releaseCreated: ${{ steps.release-created.outputs.result }}
-      tag_name: ${{ steps.release-please.outputs.tag_name }}
+      releasePRName: ${{ steps.release-please.outputs.pr.headBranchName }}
+      releasePRNumber: ${{ steps.release-please.outputs.pr.number }}
+      tagName: ${{ steps.release-please.outputs.tag_name }}
 
     steps:
       - uses: google-github-actions/release-please-action@v3
@@ -29,15 +31,6 @@ jobs:
           script: |
             return Boolean(${{ steps.release.outputs.releases_created }})
 
-      - name: Info
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            console.log(${{ steps.release-created.outputs.result }})
-            console.log(${{ steps.release-please.outputs.pr }})
-            console.log(${{ steps.release-please.outputs }})
-
   deploy:
     runs-on: ubuntu-latest
     permissions: write-all
@@ -55,8 +48,11 @@ jobs:
           github-token: ${{ github.token }}
           result-encoding: string
           script: |
-            const releaseCreated = Boolean(${{ needs.release-please.outputs.releaseCreated }});
-            return releaseCreated ? '${{ needs.release-please.outputs.tag_name }}' : 'release-please--branches--main--components--TEST';
+            const releaseCreated = ${{ needs.release-please.outputs.releaseCreated }};
+            const tagName = '${{ needs.release-please.outputs.tagName }}';
+            const releasePRName = '${{ needs.release-please.outputs.releasePRName }}';
+
+            return releaseCreated ? tagName : releasePRName;
 
       - name: Info
         run: echo '${{ steps.ref.outputs.result }}'
@@ -96,7 +92,7 @@ jobs:
             let version = '${{ env.head_sha }}'.slice(0, 8);
 
             if (${{ needs.release-please.outputs.releaseCreated }}) {
-              const ref = '${{ needs.release-please.outputs.tag_name }}'
+              const ref = '${{ needs.release-please.outputs.tagName }}'
               version = ref.replace('refs/tags/', '').replace(/\./g, '-');
             }
 
@@ -115,10 +111,18 @@ jobs:
             const { pull_request, repository } = context.payload;
             const newStackLink = '${{ steps.stackLink.outputs.result  }}'
 
-            const { data: { id, body } } = await github.rest.repos.getReleaseByTag({ owner: repository.owner.login, repo: repository.name, tag: ref });
+            const { data: { id, body } } = await github.rest.repos.getReleaseByTag({ 
+              owner: repository.owner.login, 
+              repo: repository.name, 
+              tag: '${{ needs.release-please.outputs.tagName }}'
+            });
 
-            const newBody = `${ newStackLink }\n---\n${ body }`;
-            await github.rest.repos.updateRelease({owner: repository.owner.login, repo: repository.name, release_id: id, body: newBody});
+            await github.rest.repos.updateRelease({
+              owner: repository.owner.login, 
+              repo: repository.name, 
+              release_id: id, 
+              body: `${ newStackLink }\n---\n${ body }`
+            });
 
       - name: Update PR
         uses: actions/github-script@v6
@@ -127,11 +131,16 @@ jobs:
           github-token: ${{ github.token }}
           script: |
             const { repository } = context.payload;
-            const newStackLink = '${{ steps.stackLink.outputs.result  }}'
+            const newStackLink = '${{ steps.stackLink.outputs.result  }}';
+            const pullNumber = ${{ needs.release-please.outputs.releasePRNumber }};
 
             await github.rest.issues.createComment({ owner: repository.owner.login, repo: repository.name, issue_number: ${{ env.pr_number }}, body: `Deployed to ${ newStackLink }` });
 
-            let { data: { body } } = await github.rest.pulls.get({ owner: repository.owner.login, repo: repository.name, pull_number: ${{ env.pr_number }} });
+            let { data: { body } } = await github.rest.pulls.get({ 
+              owner: repository.owner.login,
+              repo: repository.name, 
+              pull_number: pullNumber
+            });
 
             if (!body) {
               console.info('No body found');
@@ -154,4 +163,9 @@ jobs:
 
             body = `${ prefix }${ newStackLink }\n---\n${ body }`;
 
-            await github.rest.pulls.update({ owner: repository.owner.login, repo: repository.name, pull_number: ${{ env.pr_number }}, body });
+            await github.rest.pulls.update({ 
+              owner: repository.owner.login, 
+              repo: repository.name, 
+              pull_number: pullNumber, 
+              body
+            });
