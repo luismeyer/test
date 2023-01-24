@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     outputs:
-      releaseCreated: ${{ steps.release-created.outputs.result }}
+      releaseCreated: ${{ steps.release-created.outputs.releases_created }}
       tagName: ${{ steps.release-please.outputs.tag_name }}
 
     steps:
@@ -20,13 +20,6 @@ jobs:
           release-type: node
           package-name: TEST
           pull-request-title-pattern: "v${version}"
-
-      - name: Release Created Status
-        id: release-created
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ github.token }}
-          script: return Boolean(${{ steps.release.outputs.releases_created }})
 
   setup:
     runs-on: ubuntu-latest
@@ -48,7 +41,7 @@ jobs:
           github-token: ${{ github.token }}
           result-encoding: string
           script: |
-            const releaseCreated = ${{ needs.release-please.outputs.releaseCreated }};
+            const releaseCreated = Boolean(${{ needs.release-please.outputs.releaseCreated }});
             const tagName = '${{ needs.release-please.outputs.tagName }}';
             const releasePRName = 'release-please--branches--main--components--TEST';
 
@@ -76,8 +69,9 @@ jobs:
           github-token: ${{ github.token }}
           script: |
             let version = '${{ env.releasePRHeadSha }}'.slice(0, 8);
+            const releaseCreated = Boolean(${{ needs.release-please.outputs.releaseCreated }});
 
-            if (${{ needs.release-please.outputs.releaseCreated }}) {
+            if (releaseCreated) {
               const ref = '${{ needs.release-please.outputs.tagName }}'
               version = ref.replace('refs/tags/', '').replace(/\./g, '-');
             }
