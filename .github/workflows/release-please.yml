@@ -10,8 +10,6 @@ jobs:
     permissions: write-all
     outputs:
       releaseCreated: ${{ steps.release-created.outputs.result }}
-      releasePRName: ${{ steps.release-please.outputs.pr.headBranchName }}
-      releasePRNumber: ${{ steps.release-please.outputs.pr.number }}
       tagName: ${{ steps.release-please.outputs.tag_name }}
 
     steps:
@@ -31,21 +29,15 @@ jobs:
           script: |
             return Boolean(${{ steps.release.outputs.releases_created }})
 
-      - name: Info
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            console.log(${{ steps.release-please.outputs }}())
-            console.log(${{ steps.release-please.outputs.pr }})
-            console.log(${{ steps.release-please.outputs.pr.headBranchName }})
-
-  deploy:
+  setup:
     runs-on: ubuntu-latest
     permissions: write-all
     needs: release-please
     outputs:
-      ref: ${{ needs.release-please.outputs.releasePRName || needs.release-please.outputs.tagName }}
+      ref: ${{ steps.ref.outputs.result }}
+      stackLink: ${{ steps.stackLink.outputs.result }}
+      releasePRNumber: ${{ steps.envVars.outputs.releasePRNumber }}
+      releasePRHeadSha: ${{ steps.envVars.outputs.releasePRHeadSha }}
     env:
       CI: true
 
@@ -59,36 +51,22 @@ jobs:
           script: |
             const releaseCreated = ${{ needs.release-please.outputs.releaseCreated }};
             const tagName = '${{ needs.release-please.outputs.tagName }}';
-            const releasePRName = '${{ needs.release-please.outputs.releasePRName }}';
+            const releasePRName = 'release-please--branches--main--components--TEST';
 
             return releaseCreated ? tagName : releasePRName;
-
-      - name: Info
-        run: echo '${{ steps.ref.outputs.result }}'
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.ref.outputs.result }}
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: "npm"
-          registry-url: https://npm.pkg.github.com
-          scope: "@volkswagen-onehub"
-
-  output:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    needs: deploy
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ needs.deploy.outputs.ref }}
+      - name: Create Env Variables
+        id: envVars
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "releasePRNumber=$(gh pr view --json number -q .number || echo "PR number not found")" >> $GITHUB_ENV
+          echo "releasePRHeadSha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Create Stacklink
         uses: actions/github-script@v6
@@ -98,7 +76,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            let version = '${{ env.head_sha }}'.slice(0, 8);
+            let version = '${{ env.releasePRHeadSha }}'.slice(0, 8);
 
             if (${{ needs.release-please.outputs.releaseCreated }}) {
               const ref = '${{ needs.release-please.outputs.tagName }}'
@@ -108,8 +86,41 @@ jobs:
             const newStackLabel = `${ version }.${{ env.AWS_HOSTED_ZONE_NAME }}`;
             return `[${ newStackLabel }](https://${ newStackLabel })`;
 
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: setup
+    env:
+      CI: true
+
+    steps:
       - name: Info
-        run: echo '${{ steps.stackLink.outputs.result }}'
+        run: echo '${{ needs.setup.outputs.ref }}'
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: "npm"
+          registry-url: https://npm.pkg.github.com
+          scope: "@volkswagen-onehub"
+
+  release-output:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: deploy
+    if: ${{ needs.release-please.outputs.releaseCreated }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
 
       - name: Update Release description
         uses: actions/github-script@v6
@@ -118,7 +129,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { pull_request, repository } = context.payload;
-            const newStackLink = '${{ steps.stackLink.outputs.result  }}'
+            const newStackLink = '${{ needs.setup.outputs.stackLink }}'
 
             const { data: { id, body } } = await github.rest.repos.getReleaseByTag({ 
               owner: repository.owner.login, 
@@ -133,17 +144,35 @@ jobs:
               body: `${ newStackLink }\n---\n${ body }`
             });
 
+  prerelease-output:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: deploy
+    if: ${{ !needs.release-please.outputs.releaseCreated }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
+
       - name: Update PR
         uses: actions/github-script@v6
-        if: ${{ !needs.release-please.outputs.releaseCreated }}
         with:
           github-token: ${{ github.token }}
           script: |
             const { repository } = context.payload;
-            const newStackLink = '${{ steps.stackLink.outputs.result  }}';
-            const pullNumber = ${{ needs.release-please.outputs.releasePRNumber }};
 
-            await github.rest.issues.createComment({ owner: repository.owner.login, repo: repository.name, issue_number: ${{ env.pr_number }}, body: `Deployed to ${ newStackLink }` });
+            const newStackLink = '${{ needs.setup.outputs.stackLink }}';
+
+            const pullNumber = ${{ needs.setup.outputs.releasePRNumber }}
+
+            await github.rest.issues.createComment({ 
+              owner: repository.owner.login, 
+              repo: repository.name, 
+              issue_number: pullNumber, 
+              body: `Deployed to ${ newStackLink }`
+            });
 
             let { data: { body } } = await github.rest.pulls.get({ 
               owner: repository.owner.login,
