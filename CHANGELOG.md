@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0](https://github.com/luismeyer/test/compare/v1.5.0...v1.6.0) (2023-01-24)
+
+
+### Features
+
+* fancy ([9f1e857](https://github.com/luismeyer/test/commit/9f1e8570db0bae3ad9882d20d7dbba5dc071e271))
+* secret ([2a80a07](https://github.com/luismeyer/test/commit/2a80a0740af58a7e57422f6d3e40c503ef6cbdcb))
+
 ## [1.5.0](https://github.com/luismeyer/test/compare/v1.4.0...v1.5.0) (2023-01-24)
 
 
