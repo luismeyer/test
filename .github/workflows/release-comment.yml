@@ -2,7 +2,7 @@ name: Pull Request Comment
 on: issue_comment
 
 env:
-  JOB_ID: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job_id }}
+  JOB_ID: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
 jobs:
   pull-request-comment:
