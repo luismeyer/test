@@ -49,6 +49,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm ci --fund false --audit false --loglevel error
 
+      - name: FAIL
+        id: pr-comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            throw new Error("Fail")
+
       - name: Get Commit Sha
         run: echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
