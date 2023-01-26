@@ -1,0 +1,74 @@
+name: Pull Request Comment
+on: issue_comment
+
+jobs:
+  pull-request-comment:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    if: github.event.issue.pull_request && github.event.comment.body == '/deploy'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: hub pr checkout ${{ github.event.issue.number }}
+
+      - name: Create PR Comment
+        id: pr-comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { repository } = context.payload;
+
+            const { data: { id } } = await github.rest.issues.createComment({
+              owner: repository.owner.login,
+              repo: repository.name,
+              issue_number: ${{ github.event.issue.number }},
+              body: ':building_construction: Creating a Prerelease for this Pull Request: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+            });
+
+            return id
+
+      - name: Get Commit Sha
+        run: echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Update PR Comment success
+        if: success()
+        uses: actions/github-script@v6
+        env:
+          AWS_HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const {repository} = context.payload;
+            const version = '${{ env.commit_sha }}'.slice(0, 8);
+
+            const newStackLabel = `${ version }.${{ env.AWS_HOSTED_ZONE_NAME }}`;
+            const newStackLink = `[${ newStackLabel }](https://${ newStackLabel })`;
+
+            github.rest.issues.updateComment({
+              owner: repository.owner.login,
+              repo: repository.name,
+              comment_id: ${{ steps.pr-comment.outputs.result }},
+              body: `:rocket: Deployed to ${ newStackLink }`
+            });
+
+      - name: Update PR Comment failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const {repository} = context.payload;
+
+            github.rest.issues.updateComment({
+              owner: repository.owner.login,
+              repo: repository.name,
+              comment_id: ${{ steps.pr-comment.outputs.result }},
+              body: `:disappointed: Prerelease failed here: [WHY???](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) :warning:`
+            });
