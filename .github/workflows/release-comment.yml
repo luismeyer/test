@@ -1,6 +1,9 @@
 name: Pull Request Comment
 on: issue_comment
 
+env:
+  JOB_ID: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job_id }}
+
 jobs:
   pull-request-comment:
     permissions: write-all
@@ -30,7 +33,7 @@ jobs:
               owner: repository.owner.login,
               repo: repository.name,
               issue_number: ${{ github.event.issue.number }},
-              body: ':building_construction: Creating a Prerelease for this Pull Request: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+              body: ':building_construction: Creating a Prerelease for this Pull Request: [${{ github.run_id }}](${{ env.JOB_ID }})'
             });
 
             return id
@@ -82,5 +85,5 @@ jobs:
               owner: repository.owner.login,
               repo: repository.name,
               comment_id: ${{ steps.pr-comment.outputs.result }},
-              body: `:disappointed: Prerelease failed here: [WHY???](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) :warning:`
+              body: `:disappointed: Prerelease failed here: [WHY???](${{ env.JOB_ID }}) :warning:`
             });
