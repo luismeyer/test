@@ -3,6 +3,7 @@ on: issue_comment
 
 jobs:
   pull-request-comment:
+    permissions: write-all
     runs-on: ubuntu-latest
     env:
       CI: true
