@@ -35,6 +35,17 @@ jobs:
 
             return id
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: "npm"
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm ci --fund false --audit false --loglevel error
+
       - name: Get Commit Sha
         run: echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
