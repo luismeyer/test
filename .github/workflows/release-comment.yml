@@ -50,7 +50,6 @@ jobs:
         run: npm ci --fund false --audit false --loglevel error
 
       - name: FAIL
-        id: pr-comment
         uses: actions/github-script@v6
         with:
           github-token: ${{ github.token }}
