@@ -25,13 +25,13 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ needs.checkReleaseName.outputs.isHotfix == true }}
     needs: [checkReleaseName]
     env:
       CI: true
 
     steps:
       - name: Info
+        if: ${{ needs.checkReleaseName.outputs.isHotfix }} == true
         run: echo ${{ needs.checkReleaseName.outputs.isHotfix }}
 
       - name: Checkout
