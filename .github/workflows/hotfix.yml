@@ -25,6 +25,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ needs.checkReleaseName.outputs.isHotfix == true }}
     needs: [checkReleaseName]
     env:
       CI: true
