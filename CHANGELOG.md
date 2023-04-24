@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/luismeyer/test/compare/v1.6.0...v1.7.0) (2023-04-24)
+
+
+### Features
+
+* food ([5f3223b](https://github.com/luismeyer/test/commit/5f3223bc60f7923a382c9679adb84c9a007a6c77))
+* remove ([e4ca304](https://github.com/luismeyer/test/commit/e4ca3045f11a11b225df577a173df872a97142d1))
+
 ## [1.6.0](https://github.com/luismeyer/test/compare/v1.5.0...v1.6.0) (2023-01-24)
 
 
