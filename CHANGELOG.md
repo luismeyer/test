@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/luismeyer/test/compare/v1.7.0...v1.8.0) (2023-04-24)
+
+
+### Features
+
+* ci ([6f9e353](https://github.com/luismeyer/test/commit/6f9e35355d24f1e37278fe7db9d42254144c46d6))
+
 ## [1.7.0](https://github.com/luismeyer/test/compare/v1.6.0...v1.7.0) (2023-04-24)
 
 
